@@ -11,7 +11,7 @@ Welcome to Assignment 1! In this assignment, you will work with **Java threads**
 - 📊 Analyze threading behavior
 - 🌟 Develop professional software development practices including version control, documentation, and project presentation
 
-**Important**: This assignment is worth **10 marks** (10% of your final grade).
+**Important**: This assignment is worth **5 marks + 5 Bonus** (10% of your final grade).
 
 ---
 
@@ -22,7 +22,7 @@ Welcome to Assignment 1! In this assignment, you will work with **Java threads**
 1. **Create a GitHub account** using your **university email** (@std.psau.edu.sa)
    - Go to https://github.com
    - Click "Sign up"
-   - Use your university email: `yourname@std.psau.edu.sa`
+   - Use your university email: `yourID@std.psau.edu.sa`
    - Verify your email address
 
 2. **Fork this repository**:
