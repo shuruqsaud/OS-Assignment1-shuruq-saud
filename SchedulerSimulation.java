@@ -1,5 +1,6 @@
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
@@ -33,13 +34,23 @@ class Process implements Runnable {
     // Feature 1:
     private int priority; // Priority of the process 
 
+    // FEATURE 3: Fields to track waiting time
+    private long creationTime; // Time when process was created (in milliseconds)
+    private long totalWaitingTime; // Total time spent waiting in queue (in milliseconds)
+    private long lastReadyTime; // Last time the process entered the ready queue
+
     // Constructor to initialize the process with name, burst time, and time quantum
-    public Process(String name, int burstTime, int timeQuantum, int ) {
+    public Process(String name, int burstTime, int timeQuantum, int priority){
         this.name = name;
         this.burstTime = burstTime;
         this.timeQuantum = timeQuantum;
         this.remainingTime = burstTime; // Initially, remaining time is equal to the burst time
         this.priority = priority; // Ferture 1: Initialize priority 
+
+        // FEATURE 3: Initialize timing fields
+        this.creationTime = System.currentTimeMillis(); // Record when process is created
+        this.totalWaitingTime = 0; // Start with 0 waiting time
+        this.lastReadyTime = this.creationTime; // Initially, process is ready at creation
     }
 
     // This method will be called when the thread for this process is started
@@ -145,6 +156,33 @@ class Process implements Runnable {
     public int getPriority() {
         return priority;
     }
+    // FEATURE 3: Getter for creation time
+    public long getCreationTime() {
+        return creationTime;
+    }
+    
+    // FEATURE 3: Getter for total waiting time
+    public long getTotalWaitingTime() {
+        return totalWaitingTime;
+    }
+    
+    // FEATURE 3: Getter for last ready time
+    public long getLastReadyTime() {
+        return lastReadyTime;
+    }
+    
+    // FEATURE 3: Method to update waiting time when process is about to run
+    // Call this when process starts executing to calculate how long it waited
+    public void updateWaitingTime() {
+        long currentTime = System.currentTimeMillis();
+        long waitTime = currentTime - lastReadyTime; // Time spent waiting since last added to queue
+        totalWaitingTime += waitTime;
+    }
+    
+    // FEATURE 3: Method to set last ready time when process re-enters queue
+    public void setLastReadyTime(long time) {
+        this.lastReadyTime = time;
+    }
 
     // Check if the process has finished (i.e., no remaining time)
     public boolean isFinished() {
@@ -155,6 +193,9 @@ class Process implements Runnable {
 public class SchedulerSimulation {
     // Feature 2
     private static int contextSwithCount =0;
+
+    // Feature 3
+    private static List<Process> completedProcesses = new ArrayList<>(); 
     public static void main(String[] args) {
         // ⚠️ IMPORTANT: Put your student ID here to seed the random number generator
         // This makes your output unique to you - DO NOT forget to change this!
@@ -234,6 +275,11 @@ public class SchedulerSimulation {
             Thread currentThread = processQueue.poll(); // Dequeues the next thread
             // Feature 2
             contextSwithCount++;
+
+Process process = processMap.get(currentThread);
+
+            // Feature 3
+            process.updateWaitingTime(); 
             
             // Print the current process queue (list of process IDs in the queue)
             System.out.println(Colors.BOLD + Colors.MAGENTA + "┌─ Ready Queue " + "─".repeat(65) + Colors.RESET);
@@ -268,6 +314,7 @@ public class SchedulerSimulation {
             if (!process.isFinished()) {
                 // If the process still has remaining time, check if there are more processes in queue
                 if (!processQueue.isEmpty()) {
+                    process.setLastReadyTime(System.currentTimeMillis());
                     // Re-enqueue the process to give it another chance to run in the next round
                     addProcessToQueue(process, processQueue, processMap);
                 } else {
@@ -276,7 +323,12 @@ public class SchedulerSimulation {
                                       Colors.RESET + Colors.YELLOW + " is the last process → running to completion" + 
                                       Colors.RESET);
                     process.runToCompletion(); // Run until the process completes
+                    // Feature 3
+                    completedProcesses.add(process);
                 }
+            }else {
+                // Feature 3
+                completedProcesses.add(process);
             }
         }
         
@@ -310,7 +362,10 @@ public class SchedulerSimulation {
                           Colors.BOLD + Colors.BRIGHT_YELLOW + "║" + Colors.RESET);
         System.out.println(Colors.BOLD + Colors.BRIGHT_YELLOW + 
                           "╚════════════════════════════════════════════════════════════════════════════════╝" + 
-                          Colors.RESET + "\n");                 
+                          Colors.RESET + "\n");   
+                          
+                          // Feature 3
+                          displayWaitingTimesSummary();
     }
     
     // Method to add a process to the queue and map, while printing a "ready" message
