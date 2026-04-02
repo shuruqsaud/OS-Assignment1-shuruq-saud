@@ -150,9 +150,11 @@ class Process implements Runnable {
     public boolean isFinished() {
         return remainingTime <= 0;
     }
-}
+ 
 
 public class SchedulerSimulation {
+    // Feature 2
+    private static int contextSwithCount =0;
     public static void main(String[] args) {
         // ⚠️ IMPORTANT: Put your student ID here to seed the random number generator
         // This makes your output unique to you - DO NOT forget to change this!
@@ -230,6 +232,8 @@ public class SchedulerSimulation {
         while (!processQueue.isEmpty()) {
             // Get the next thread from the queue (FIFO)
             Thread currentThread = processQueue.poll(); // Dequeues the next thread
+            // Feature 2
+            contextSwithCount++;
             
             // Print the current process queue (list of process IDs in the queue)
             System.out.println(Colors.BOLD + Colors.MAGENTA + "┌─ Ready Queue " + "─".repeat(65) + Colors.RESET);
@@ -287,6 +291,26 @@ public class SchedulerSimulation {
         System.out.println(Colors.BOLD + Colors.BRIGHT_GREEN + 
                           "╚════════════════════════════════════════════════════════════════════════════════╝" + 
                           Colors.RESET + "\n");
+                          System.out.println(Colors.BOLD + Colors);
+                        
+        // FEATURE 2: Display total context switches at the end of simulation
+        System.out.println(Colors.BOLD + Colors.BRIGHT_YELLOW + 
+                          "╔════════════════════════════════════════════════════════════════════════════════╗" + 
+                          Colors.RESET);
+        System.out.println(Colors.BOLD + Colors.BRIGHT_YELLOW + "║" + Colors.RESET + 
+                          Colors.BG_BLUE + Colors.BRIGHT_WHITE + Colors.BOLD + 
+                          "                        SCHEDULER STATISTICS                                     " + 
+                          Colors.RESET + Colors.BOLD + Colors.BRIGHT_YELLOW + "║" + Colors.RESET);
+        System.out.println(Colors.BOLD + Colors.BRIGHT_YELLOW + 
+                          "╠════════════════════════════════════════════════════════════════════════════════╣" + 
+                          Colors.RESET);
+        System.out.println(Colors.BOLD + Colors.BRIGHT_YELLOW + "║" + Colors.RESET + 
+                          Colors.CYAN + "  🔄 Total Context Switches: " + Colors.RESET + 
+                          Colors.BRIGHT_CYAN + String.format("%-52s", contextSwitchCount) + 
+                          Colors.BOLD + Colors.BRIGHT_YELLOW + "║" + Colors.RESET);
+        System.out.println(Colors.BOLD + Colors.BRIGHT_YELLOW + 
+                          "╚════════════════════════════════════════════════════════════════════════════════╝" + 
+                          Colors.RESET + "\n");                 
     }
     
     // Method to add a process to the queue and map, while printing a "ready" message
